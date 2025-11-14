@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Todo App - Playwright Testing Example",
@@ -15,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <AuthProvider>{children}</AuthProvider>
+        {children}
       </body>
     </html>
   );

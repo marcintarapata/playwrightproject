@@ -11,6 +11,3 @@ export const authClient = createAuthClient({
 });
 
 export const { signIn, signUp, signOut, useSession } = authClient;
-
-// Export SessionProvider for app-wide session management
-export const SessionProvider = authClient.SessionProvider;
