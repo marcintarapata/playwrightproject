@@ -6,6 +6,7 @@
   "scripts": {
     "test": "playwright test",
     "test:smoke": "playwright test tests/smoke",
+    "test:smoke:headed": "playwright test tests/smoke --headed",
     "test:e2e": "playwright test tests/e2e",
     "test:integration": "playwright test tests/integration",
     "test:regression": "playwright test",

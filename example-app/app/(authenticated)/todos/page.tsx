@@ -90,39 +90,57 @@ export default function TodosPage() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">My Todos</h1>
+        <h1 className="text-3xl font-bold mb-8 text-gray-900">My Todos</h1>
 
         {/* Create Form */}
         <form onSubmit={handleCreate} className="bg-white p-6 rounded-lg shadow mb-8" data-testid="create-todo-form">
-          <h2 className="text-xl font-bold mb-4">Create New Todo</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-900">Create New Todo</h2>
           <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className="w-full px-4 py-2 border rounded"
-              data-testid="todo-title-input"
-            />
-            <textarea
-              placeholder="Description (optional)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-2 border rounded"
-              data-testid="todo-description-input"
-            />
-            <select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as any)}
-              className="px-4 py-2 border rounded"
-              data-testid="todo-priority-select"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-            <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" data-testid="create-todo-button">
+            <div>
+              <label htmlFor="todo-title" className="block text-sm font-medium text-gray-700 mb-2">
+                Title
+              </label>
+              <input
+                id="todo-title"
+                type="text"
+                placeholder="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                data-testid="todo-title-input"
+              />
+            </div>
+            <div>
+              <label htmlFor="todo-description" className="block text-sm font-medium text-gray-700 mb-2">
+                Description (optional)
+              </label>
+              <textarea
+                id="todo-description"
+                placeholder="Description (optional)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                data-testid="todo-description-input"
+              />
+            </div>
+            <div>
+              <label htmlFor="todo-priority" className="block text-sm font-medium text-gray-700 mb-2">
+                Priority
+              </label>
+              <select
+                id="todo-priority"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as any)}
+                className="w-full px-4 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                data-testid="todo-priority-select"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-medium" data-testid="create-todo-button">
               Create Todo
             </button>
           </div>
@@ -130,9 +148,9 @@ export default function TodosPage() {
 
         {/* Filter */}
         <div className="mb-4 flex gap-2" data-testid="todo-filter">
-          <button onClick={() => setFilter('all')} className={`px-4 py-2 rounded ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`} data-testid="filter-all">All</button>
-          <button onClick={() => setFilter('active')} className={`px-4 py-2 rounded ${filter === 'active' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`} data-testid="filter-active">Active</button>
-          <button onClick={() => setFilter('completed')} className={`px-4 py-2 rounded ${filter === 'completed' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`} data-testid="filter-completed">Completed</button>
+          <button onClick={() => setFilter('all')} className={`px-4 py-2 rounded font-medium ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900 hover:bg-gray-300'}`} data-testid="filter-all">All</button>
+          <button onClick={() => setFilter('active')} className={`px-4 py-2 rounded font-medium ${filter === 'active' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900 hover:bg-gray-300'}`} data-testid="filter-active">Active</button>
+          <button onClick={() => setFilter('completed')} className={`px-4 py-2 rounded font-medium ${filter === 'completed' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900 hover:bg-gray-300'}`} data-testid="filter-completed">Completed</button>
         </div>
 
         {/* Todos List */}
@@ -147,11 +165,11 @@ export default function TodosPage() {
                     type="checkbox"
                     checked={todo.completed}
                     onChange={() => handleToggle(todo.id, todo.completed)}
-                    className="w-5 h-5"
+                    className="w-5 h-5 cursor-pointer accent-blue-600 border-gray-300 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     data-testid={`todo-checkbox-${todo.id}`}
                   />
                   <div className="flex-1">
-                    <h3 className={`font-semibold ${todo.completed ? 'line-through text-gray-500' : ''}`} data-testid={`todo-title-${todo.id}`}>{todo.title}</h3>
+                    <h3 className={`font-semibold ${todo.completed ? 'line-through text-gray-500' : 'text-gray-900'}`} data-testid={`todo-title-${todo.id}`}>{todo.title}</h3>
                     {todo.description && <p className="text-gray-600 text-sm" data-testid={`todo-description-${todo.id}`}>{todo.description}</p>}
                     <span className={`text-xs px-2 py-1 rounded ${todo.priority === 'high' ? 'bg-red-100 text-red-800' : todo.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`} data-testid={`todo-priority-${todo.id}`}>
                       {todo.priority}
