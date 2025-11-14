@@ -8,8 +8,9 @@
  */
 
 import { db } from '../lib/db';
-import { users, todos } from '../lib/db/schema';
+import { users, accounts, todos } from '../lib/db/schema';
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 
 console.log('🌱 Seeding database...');
 
@@ -23,37 +24,70 @@ async function seed() {
     // Insert test users
     console.log('👥 Creating users...');
 
-    const testUser = db
-      .insert(users)
+    // Create Test User
+    const testUserId = randomUUID();
+    db.insert(users)
       .values({
+        id: testUserId,
         name: 'Test User',
         email: 'test@example.com',
-        passwordHash: testPasswordHash,
+        emailVerified: false,
       })
-      .returning()
-      .get();
+      .run();
 
-    const adminUser = db
-      .insert(users)
+    db.insert(accounts)
       .values({
+        id: randomUUID(),
+        accountId: 'test@example.com',
+        providerId: 'credential',
+        userId: testUserId,
+        password: testPasswordHash,
+      })
+      .run();
+
+    // Create Admin User
+    const adminUserId = randomUUID();
+    db.insert(users)
+      .values({
+        id: adminUserId,
         name: 'Admin User',
         email: 'admin@example.com',
-        passwordHash: adminPasswordHash,
+        emailVerified: false,
       })
-      .returning()
-      .get();
+      .run();
 
-    const johnUser = db
-      .insert(users)
+    db.insert(accounts)
       .values({
+        id: randomUUID(),
+        accountId: 'admin@example.com',
+        providerId: 'credential',
+        userId: adminUserId,
+        password: adminPasswordHash,
+      })
+      .run();
+
+    // Create John Doe User
+    const johnUserId = randomUUID();
+    db.insert(users)
+      .values({
+        id: johnUserId,
         name: 'John Doe',
         email: 'john@example.com',
-        passwordHash: johnPasswordHash,
+        emailVerified: false,
       })
-      .returning()
-      .get();
+      .run();
 
-    console.log('✅ Created 3 users');
+    db.insert(accounts)
+      .values({
+        id: randomUUID(),
+        accountId: 'john@example.com',
+        providerId: 'credential',
+        userId: johnUserId,
+        password: johnPasswordHash,
+      })
+      .run();
+
+    console.log('✅ Created 3 users with accounts');
 
     // Insert todos for Test User
     console.log('📝 Creating todos for Test User...');
@@ -61,35 +95,35 @@ async function seed() {
     const testUserTodos = [
       // Completed todos
       {
-        userId: testUser.id,
+        userId: testUserId,
         title: 'Setup development environment',
         description: 'Install Node.js, npm, and required tools',
         priority: 'high' as const,
         completed: true,
       },
       {
-        userId: testUser.id,
+        userId: testUserId,
         title: 'Read project documentation',
         description: 'Go through README and API docs',
         priority: 'medium' as const,
         completed: true,
       },
       {
-        userId: testUser.id,
+        userId: testUserId,
         title: 'Configure database',
         description: 'Set up SQLite and run migrations',
         priority: 'high' as const,
         completed: true,
       },
       {
-        userId: testUser.id,
+        userId: testUserId,
         title: 'Write unit tests',
         description: 'Add test coverage for API endpoints',
         priority: 'medium' as const,
         completed: true,
       },
       {
-        userId: testUser.id,
+        userId: testUserId,
         title: 'Code review PR #42',
         description: 'Review and approve authentication changes',
         priority: 'low' as const,
@@ -98,35 +132,35 @@ async function seed() {
 
       // Active todos
       {
-        userId: testUser.id,
+        userId: testUserId,
         title: 'Implement user authentication',
         description: 'Add login and registration functionality',
         priority: 'high' as const,
         completed: false,
       },
       {
-        userId: testUser.id,
+        userId: testUserId,
         title: 'Design landing page',
         description: 'Create mockups for the homepage',
         priority: 'medium' as const,
         completed: false,
       },
       {
-        userId: testUser.id,
+        userId: testUserId,
         title: 'Optimize database queries',
         description: 'Add indexes and improve query performance',
         priority: 'medium' as const,
         completed: false,
       },
       {
-        userId: testUser.id,
+        userId: testUserId,
         title: 'Update dependencies',
         description: 'Upgrade to latest versions of packages',
         priority: 'low' as const,
         completed: false,
       },
       {
-        userId: testUser.id,
+        userId: testUserId,
         title: 'Write API documentation',
         description: 'Document all REST endpoints with examples',
         priority: 'high' as const,
@@ -142,21 +176,21 @@ async function seed() {
 
     const adminUserTodos = [
       {
-        userId: adminUser.id,
+        userId: adminUserId,
         title: 'Review user permissions',
         description: 'Audit and update role-based access control',
         priority: 'high' as const,
         completed: false,
       },
       {
-        userId: adminUser.id,
+        userId: adminUserId,
         title: 'Monitor system performance',
         description: 'Check server metrics and logs',
         priority: 'medium' as const,
         completed: false,
       },
       {
-        userId: adminUser.id,
+        userId: adminUserId,
         title: 'Backup database',
         description: 'Create weekly database backup',
         priority: 'high' as const,
@@ -172,14 +206,14 @@ async function seed() {
 
     const johnUserTodos = [
       {
-        userId: johnUser.id,
+        userId: johnUserId,
         title: 'Learn Playwright',
         description: 'Complete Playwright tutorial and examples',
         priority: 'medium' as const,
         completed: false,
       },
       {
-        userId: johnUser.id,
+        userId: johnUserId,
         title: 'Buy groceries',
         description: 'Milk, eggs, bread, coffee',
         priority: 'low' as const,
