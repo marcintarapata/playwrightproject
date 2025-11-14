@@ -33,14 +33,14 @@ export class TodosPage extends BasePage {
    */
   private readonly selectors = {
     // Page elements
-    pageTitle: '[data-testid="page-title"]',
-    backToDashboard: '[data-testid="back-to-dashboard"]',
+    pageTitle: 'h1', // "My Todos" heading
+    backToDashboard: 'a[href="/dashboard"]', // "← Back to Dashboard" link
 
     // Form elements
-    titleInput: '[data-testid="todo-title"]',
-    descriptionInput: '[data-testid="todo-description"]',
-    prioritySelect: '[data-testid="todo-priority"]',
-    addButton: '[data-testid="add-todo"]',
+    titleInput: '[data-testid="todo-title-input"]',
+    descriptionInput: '[data-testid="todo-description-input"]',
+    prioritySelect: '[data-testid="todo-priority-select"]',
+    addButton: '[data-testid="create-todo-button"]',
 
     // Filter buttons
     filterAll: '[data-testid="filter-all"]',
@@ -98,10 +98,26 @@ export class TodosPage extends BasePage {
       await loadingSpinner.waitFor({ state: 'hidden', timeout: 10000 });
     }
 
-    // Wait for either todos or empty state to be visible
+    // Wait for todos API call to complete
+    await this.page
+      .waitForResponse(
+        (response) => response.url().includes('/api/todos') && response.status() === 200,
+        { timeout: 10000 }
+      )
+      .catch(() => {
+        // If the response already happened, continue
+      });
+
+    // Wait for either todos list or empty state to be visible
     await Promise.race([
-      this.page.locator(this.selectors.todoItems).first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => {}),
-      this.page.locator(this.selectors.emptyState).waitFor({ state: 'visible', timeout: 5000 }).catch(() => {}),
+      this.page
+        .locator('[data-testid="todos-list"]')
+        .waitFor({ state: 'visible', timeout: 5000 })
+        .catch(() => {}),
+      this.page
+        .locator(this.selectors.emptyState)
+        .waitFor({ state: 'visible', timeout: 5000 })
+        .catch(() => {}),
     ]);
   }
 
@@ -130,10 +146,35 @@ export class TodosPage extends BasePage {
     }
 
     await this.selectOption(this.selectors.prioritySelect, priority);
+
+    // Wait for both POST (create) and GET (refresh list) requests to complete
+    const postPromise = this.page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/todos') &&
+        response.request().method() === 'POST' &&
+        response.status() === 200,
+      { timeout: 10000 }
+    );
+
     await this.clickElement(this.selectors.addButton);
 
-    // Wait for the new todo to appear
-    await this.wait(500);
+    // Wait for POST to complete
+    await postPromise.catch(() => {
+      // If response already happened, continue
+    });
+
+    // Wait for GET request that refreshes the list after creation
+    await this.page
+      .waitForResponse(
+        (response) =>
+          response.url().includes('/api/todos') &&
+          response.request().method() === 'GET' &&
+          response.status() === 200,
+        { timeout: 10000 }
+      )
+      .catch(() => {
+        // If response already happened, continue
+      });
   }
 
   /**
@@ -186,8 +227,34 @@ export class TodosPage extends BasePage {
    * ```
    */
   async toggleTodo(todoId: number): Promise<void> {
+    // Wait for both PATCH (toggle) and GET (refresh list) requests to complete
+    const patchPromise = this.page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/todos/${todoId}`) &&
+        response.request().method() === 'PATCH' &&
+        response.status() === 200,
+      { timeout: 10000 }
+    );
+
     await this.clickElement(this.selectors.todoCheckbox(todoId));
-    await this.wait(300);
+
+    // Wait for PATCH to complete
+    await patchPromise.catch(() => {
+      // If response already happened, continue
+    });
+
+    // Wait for GET request that refreshes the list after toggle
+    await this.page
+      .waitForResponse(
+        (response) =>
+          response.url().includes('/api/todos') &&
+          response.request().method() === 'GET' &&
+          response.status() === 200,
+        { timeout: 10000 }
+      )
+      .catch(() => {
+        // If response already happened, continue
+      });
   }
 
   /**

@@ -70,11 +70,13 @@ test.describe('Critical Path Smoke Tests', () => {
 
     await loginPage.navigate();
     await loginPage.login(email, password);
+    
+    // Wait for login to complete and redirect
+    await loginPage.expectLoginSuccess();
 
     // Verify dashboard loads
     const dashboardPage = new DashboardPage(page);
     await dashboardPage.waitForDashboardLoaded();
-    await expect(page).toHaveURL('/dashboard');
 
     // Verify stats are visible
     const statsVisible = await dashboardPage.areStatsVisible();
@@ -141,6 +143,7 @@ test.describe('Critical Path Smoke Tests', () => {
 
     // Navigate to todos
     const dashboardPage = new DashboardPage(page);
+    await dashboardPage.waitForDashboardLoaded();
     await dashboardPage.clickViewTodos();
 
     // Create todo
@@ -174,15 +177,23 @@ test.describe('Critical Path Smoke Tests', () => {
     // Create new todo
     await dashboardPage.clickViewTodos();
     const todosPage = new TodosPage(page);
+    const initialTodoCount = await todosPage.getTodoCount();
     await todosPage.createTodo('Workflow Test');
 
-    // Toggle completion
-    const firstTodo = page.locator('[data-testid^="todo-item-"]').first();
-    const todoId = await firstTodo.getAttribute('data-testid');
+    // Wait for the new todo to appear and get its ID
+    await page.waitForSelector(`[data-testid^="todo-item-"]:nth-child(${initialTodoCount + 1})`, { timeout: 10000 });
+    const newTodo = page.locator('[data-testid^="todo-item-"]').last();
+    const todoId = await newTodo.getAttribute('data-testid');
     const id = parseInt(todoId?.replace('todo-item-', '') || '0');
 
+    // Verify the new todo is unchecked before toggling
+    await expect(page.locator(`[data-testid="todo-checkbox-${id}"]`)).not.toBeChecked();
+
+    // Toggle completion
     await todosPage.toggleTodo(id);
-    await expect(page.locator(`[data-testid="todo-checkbox-${id}"]`)).toBeChecked();
+    
+    // Wait for checkbox to be checked (UI update after API call)
+    await expect(page.locator(`[data-testid="todo-checkbox-${id}"]`)).toBeChecked({ timeout: 10000 });
 
     // Verify on dashboard
     await dashboardPage.navigate();

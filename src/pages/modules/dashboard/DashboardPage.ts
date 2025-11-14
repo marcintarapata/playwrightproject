@@ -31,10 +31,7 @@ export class DashboardPage extends BasePage {
     activeTodosCard: '[data-testid="stat-active"]',
     completedTodosCard: '[data-testid="stat-completed"]',
 
-    // Stat values
-    totalTodosValue: '[data-testid="stat-total"] [data-testid="stat-value"]',
-    activeTodosValue: '[data-testid="stat-active"] [data-testid="stat-value"]',
-    completedTodosValue: '[data-testid="stat-completed"] [data-testid="stat-value"]',
+    // Stat values are accessed via methods that use the card selectors above
 
     // Navigation
     viewTodosButton: '[data-testid="view-todos-button"]',
@@ -73,8 +70,29 @@ export class DashboardPage extends BasePage {
       await loadingSpinner.waitFor({ state: 'hidden', timeout: 10000 });
     }
 
-    // Wait for stats to be visible
-    await this.waitForSelector(this.selectors.totalTodosCard);
+    // Wait for stats API call to complete
+    await this.page
+      .waitForResponse(
+        (response) => response.url().includes('/api/todos/stats') && response.status() === 200,
+        { timeout: 10000 }
+      )
+      .catch(() => {
+        // If the response already happened, continue
+      });
+
+    // Wait for stats cards to be visible with retry logic
+    // The element might not be immediately visible after API response
+    await this.page.waitForSelector(this.selectors.totalTodosCard, { 
+      state: 'visible', 
+      timeout: 15000 
+    }).catch(async () => {
+      // If still not visible, wait a bit more for React to render
+      await this.page.waitForTimeout(500);
+      await this.page.waitForSelector(this.selectors.totalTodosCard, { 
+        state: 'visible', 
+        timeout: 10000 
+      });
+    });
   }
 
   /**
@@ -89,8 +107,10 @@ export class DashboardPage extends BasePage {
    * ```
    */
   async getTotalTodos(): Promise<number> {
-    const text = await this.getTextContent(this.selectors.totalTodosValue);
-    return parseInt(text, 10);
+    const card = this.page.locator(this.selectors.totalTodosCard);
+    const valueDiv = card.locator('div').first();
+    const text = await valueDiv.textContent();
+    return parseInt(text || '0', 10);
   }
 
   /**
@@ -104,8 +124,10 @@ export class DashboardPage extends BasePage {
    * ```
    */
   async getActiveTodos(): Promise<number> {
-    const text = await this.getTextContent(this.selectors.activeTodosValue);
-    return parseInt(text, 10);
+    const card = this.page.locator(this.selectors.activeTodosCard);
+    const valueDiv = card.locator('div').first();
+    const text = await valueDiv.textContent();
+    return parseInt(text || '0', 10);
   }
 
   /**
@@ -119,8 +141,10 @@ export class DashboardPage extends BasePage {
    * ```
    */
   async getCompletedTodos(): Promise<number> {
-    const text = await this.getTextContent(this.selectors.completedTodosValue);
-    return parseInt(text, 10);
+    const card = this.page.locator(this.selectors.completedTodosCard);
+    const valueDiv = card.locator('div').first();
+    const text = await valueDiv.textContent();
+    return parseInt(text || '0', 10);
   }
 
   /**
