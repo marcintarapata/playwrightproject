@@ -4,11 +4,13 @@
  * Handles route protection and redirects based on authentication state.
  * - Protects /dashboard and /todos routes (requires authentication)
  * - Redirects authenticated users away from /login and /register
+ *
+ * Note: Uses cookie-based check for Edge runtime compatibility.
+ * Full session validation happens in the pages themselves.
  */
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { auth } from "./lib/auth";
 
 // Routes that require authentication
 const protectedRoutes = ["/dashboard", "/todos"];
@@ -19,12 +21,9 @@ const authRoutes = ["/login", "/register"];
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Get session from Better Auth
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  const isAuthenticated = !!session;
+  // Check for session cookie (Better Auth uses 'better-auth.session_token')
+  const sessionToken = request.cookies.get('better-auth.session_token');
+  const isAuthenticated = !!sessionToken;
 
   // Check if route requires authentication
   const isProtectedRoute = protectedRoutes.some((route) =>
