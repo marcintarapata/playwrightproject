@@ -82,17 +82,19 @@ export class DashboardPage extends BasePage {
 
     // Wait for stats cards to be visible with retry logic
     // The element might not be immediately visible after API response
-    await this.page.waitForSelector(this.selectors.totalTodosCard, { 
-      state: 'visible', 
-      timeout: 15000 
-    }).catch(async () => {
-      // If still not visible, wait a bit more for React to render
-      await this.page.waitForTimeout(500);
-      await this.page.waitForSelector(this.selectors.totalTodosCard, { 
-        state: 'visible', 
-        timeout: 10000 
+    await this.page
+      .waitForSelector(this.selectors.totalTodosCard, {
+        state: 'visible',
+        timeout: 15000,
+      })
+      .catch(async () => {
+        // If still not visible, wait a bit more for React to render
+        await this.page.waitForTimeout(500);
+        await this.page.waitForSelector(this.selectors.totalTodosCard, {
+          state: 'visible',
+          timeout: 10000,
+        });
       });
-    });
   }
 
   /**

@@ -86,7 +86,18 @@ export class LoginPage extends BasePage {
       await this.clickElement(this.selectors.rememberMeCheckbox);
     }
 
+    // Wait for the login API call to complete
+    const loginPromise = this.page.waitForResponse(
+      (response) => response.url().includes('/api/auth/sign-in/email') && response.status() === 200,
+      { timeout: 10000 }
+    );
+
     await this.clickElement(this.selectors.submitButton);
+    
+    // Wait for login API to complete
+    await loginPromise.catch(() => {
+      // If response already happened, continue
+    });
   }
 
   /**

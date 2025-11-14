@@ -69,8 +69,9 @@ test.describe('Critical Path Smoke Tests', () => {
     const { email, password } = standardUser;
 
     await loginPage.navigate();
+    await loginPage.verifyPageLoaded();
     await loginPage.login(email, password);
-    
+
     // Wait for login to complete and redirect
     await loginPage.expectLoginSuccess();
 
@@ -139,6 +140,7 @@ test.describe('Critical Path Smoke Tests', () => {
     const loginPage = new LoginPage(page);
     const { email, password } = standardUser;
     await loginPage.navigate();
+    await loginPage.verifyPageLoaded();
     await loginPage.login(email, password);
 
     // Navigate to todos
@@ -167,6 +169,7 @@ test.describe('Critical Path Smoke Tests', () => {
     const loginPage = new LoginPage(page);
     const { email, password } = standardUser;
     await loginPage.navigate();
+    await loginPage.verifyPageLoaded();
     await loginPage.login(email, password);
 
     // Get initial dashboard stats
@@ -181,7 +184,9 @@ test.describe('Critical Path Smoke Tests', () => {
     await todosPage.createTodo('Workflow Test');
 
     // Wait for the new todo to appear and get its ID
-    await page.waitForSelector(`[data-testid^="todo-item-"]:nth-child(${initialTodoCount + 1})`, { timeout: 10000 });
+    await page.waitForSelector(`[data-testid^="todo-item-"]:nth-child(${initialTodoCount + 1})`, {
+      timeout: 10000,
+    });
     const newTodo = page.locator('[data-testid^="todo-item-"]').last();
     const todoId = await newTodo.getAttribute('data-testid');
     const id = parseInt(todoId?.replace('todo-item-', '') || '0');
@@ -191,9 +196,11 @@ test.describe('Critical Path Smoke Tests', () => {
 
     // Toggle completion
     await todosPage.toggleTodo(id);
-    
+
     // Wait for checkbox to be checked (UI update after API call)
-    await expect(page.locator(`[data-testid="todo-checkbox-${id}"]`)).toBeChecked({ timeout: 10000 });
+    await expect(page.locator(`[data-testid="todo-checkbox-${id}"]`)).toBeChecked({
+      timeout: 10000,
+    });
 
     // Verify on dashboard
     await dashboardPage.navigate();

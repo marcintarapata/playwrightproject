@@ -113,6 +113,9 @@ export const test = base.extend<BaseFixtures>({
     page.setDefaultNavigationTimeout(envConfig.timeout);
     page.setDefaultTimeout(envConfig.timeout);
 
+    // Clear cookies before each test to ensure clean state
+    await page.context().clearCookies();
+
     // Add custom error handler for uncaught page errors
     page.on('pageerror', (error) => {
       console.error(`Uncaught page error: ${error.message}`);
@@ -128,8 +131,21 @@ export const test = base.extend<BaseFixtures>({
 
     await use(page);
 
-    // Cleanup if needed
-    // await page.close(); // Usually not needed as Playwright handles this
+    // Cleanup: clear cookies after test
+    await page.context().clearCookies();
+    
+    // Clear storage if page has a valid origin
+    try {
+      const url = page.url();
+      if (url && url !== 'about:blank') {
+        await page.evaluate(() => {
+          localStorage.clear();
+          sessionStorage.clear();
+        });
+      }
+    } catch (e) {
+      // Ignore errors if page is already closed or invalid
+    }
   },
 });
 
