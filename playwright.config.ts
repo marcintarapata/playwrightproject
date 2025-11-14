@@ -183,12 +183,15 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        // Chrome-specific options
-        channel: 'chrome', // Use installed Chrome instead of Chromium
+        // Chromium-specific options for headless environments
         launchOptions: {
           args: [
-            '--disable-blink-features=AutomationControlled', // Avoid detection
-            '--disable-web-security', // For testing purposes only
+            '--disable-blink-features=AutomationControlled',
+            '--disable-dev-shm-usage', // Overcome limited resource problems
+            '--disable-gpu', // Disable GPU hardware acceleration
+            '--no-sandbox', // Required for containerized environments
+            '--disable-setuid-sandbox',
+            '--single-process', // Run in single process (uses less memory)
           ],
         },
       },

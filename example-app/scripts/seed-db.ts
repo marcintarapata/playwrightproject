@@ -1,93 +1,59 @@
 /**
- * Database Seed Script
+ * Database Seed Script (Better Auth Compatible)
  *
- * Populates the database with test data for development and testing.
- * Creates predefined users and todos for consistent testing.
+ * Populates the database with test data using Better Auth's signup API.
+ * This ensures password hashes are created in the correct format.
  *
  * Usage: npm run db:seed
  */
 
+import { auth } from '../lib/auth';
 import { db } from '../lib/db';
-import { users, accounts, todos } from '../lib/db/schema';
-import bcrypt from 'bcryptjs';
-import { randomUUID } from 'crypto';
+import { todos } from '../lib/db/schema';
 
 console.log('🌱 Seeding database...');
 
 async function seed() {
   try {
-    // Hash passwords for test users
-    const testPasswordHash = await bcrypt.hash('Test123!@#', 10);
-    const adminPasswordHash = await bcrypt.hash('Admin123!@#', 10);
-    const johnPasswordHash = await bcrypt.hash('John123!@#', 10);
+    console.log('👥 Creating users via Better Auth...');
 
-    // Insert test users
-    console.log('👥 Creating users...');
-
-    // Create Test User
-    const testUserId = randomUUID();
-    db.insert(users)
-      .values({
-        id: testUserId,
-        name: 'Test User',
+    // Create Test User using Better Auth
+    const testUser = await auth.api.signUpEmail({
+      body: {
         email: 'test@example.com',
-        emailVerified: false,
-      })
-      .run();
-
-    db.insert(accounts)
-      .values({
-        id: randomUUID(),
-        accountId: 'test@example.com',
-        providerId: 'credential',
-        userId: testUserId,
-        password: testPasswordHash,
-      })
-      .run();
+        password: 'Test123!@#',
+        name: 'Test User',
+      },
+    });
 
     // Create Admin User
-    const adminUserId = randomUUID();
-    db.insert(users)
-      .values({
-        id: adminUserId,
-        name: 'Admin User',
+    const adminUser = await auth.api.signUpEmail({
+      body: {
         email: 'admin@example.com',
-        emailVerified: false,
-      })
-      .run();
-
-    db.insert(accounts)
-      .values({
-        id: randomUUID(),
-        accountId: 'admin@example.com',
-        providerId: 'credential',
-        userId: adminUserId,
-        password: adminPasswordHash,
-      })
-      .run();
+        password: 'Admin123!@#',
+        name: 'Admin User',
+      },
+    });
 
     // Create John Doe User
-    const johnUserId = randomUUID();
-    db.insert(users)
-      .values({
-        id: johnUserId,
-        name: 'John Doe',
+    const johnUser = await auth.api.signUpEmail({
+      body: {
         email: 'john@example.com',
-        emailVerified: false,
-      })
-      .run();
+        password: 'John123!@#',
+        name: 'John Doe',
+      },
+    });
 
-    db.insert(accounts)
-      .values({
-        id: randomUUID(),
-        accountId: 'john@example.com',
-        providerId: 'credential',
-        userId: johnUserId,
-        password: johnPasswordHash,
-      })
-      .run();
+    console.log('✅ Created 3 users with Better Auth');
 
-    console.log('✅ Created 3 users with accounts');
+    // Get user IDs from the created users
+    const testUserId = testUser.user?.id;
+    const adminUserId = adminUser.user?.id;
+    const johnUserId = johnUser.user?.id;
+
+    if (!testUserId || !adminUserId || !johnUserId) {
+      throw new Error('Failed to create users');
+    }
 
     // Insert todos for Test User
     console.log('📝 Creating todos for Test User...');
