@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TodoApp - Playwright Testing Example
 
-## Getting Started
+A fully functional Next.js app demonstrating the enterprise Playwright testing framework with authentication, CRUD operations, and real-world workflows.
 
-First, run the development server:
+## Quick Start
 
 ```bash
+# Install dependencies
+npm install
+
+# Setup database with test users
+npm run db:reset-and-seed
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Test Users
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Email | Password | Todos |
+|-------|----------|-------|
+| test@example.com | Test123!@# | 10 todos |
+| admin@example.com | Admin123!@# | 3 todos |
+| john@example.com | John123!@# | 2 todos |
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+- 🏠 Landing page with marketing content
+- 🔐 Authentication (login/register)
+- 📊 Dashboard with todo statistics
+- ✅ Full CRUD todo management
+- 🎯 Priority levels & filtering
+- 🔒 Protected routes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Better Auth
+- SQLite + Drizzle ORM
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run dev               # Start dev server
+npm run build             # Build for production  
+npm run db:reset-and-seed # Reset & seed database
+npm run test:prepare      # Prepare for testing
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## All Pages Include data-testid for Testing
+
+See parent directory for Playwright tests.
