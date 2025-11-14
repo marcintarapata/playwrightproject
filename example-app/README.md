@@ -8,7 +8,8 @@ A fully functional Next.js app demonstrating the enterprise Playwright testing f
 # Install dependencies
 npm install
 
-# Setup database with test users
+# IMPORTANT: Setup database with test users (required on first run)
+# The database file is not checked into git - you must create it locally
 npm run db:reset-and-seed
 
 # Start development server
@@ -16,6 +17,8 @@ npm run dev
 ```
 
 Open http://localhost:3000
+
+> **⚠️ Important:** The database file (`data/dev.db`) is gitignored and not included in the repository. You must run `npm run db:reset-and-seed` to create it with test data before starting the app.
 
 ## Test Users
 

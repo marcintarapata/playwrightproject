@@ -62,3 +62,12 @@ coverage/
 # Playwright
 playwright/.cache/
 .auth/
+
+# Database Files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+example-app/data/*
+!example-app/data/.gitkeep
