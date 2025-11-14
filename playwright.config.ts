@@ -227,16 +227,16 @@ export default defineConfig({
 
   /**
    * Web Server
-   * Optionally start a local dev server before tests
-   * Uncomment and configure if you need to test a local application
+   * Starts the example-app development server before running tests
    */
-
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   timeout: 120 * 1000,
-  //   reuseExistingServer: !isCI,
-  // },
+  webServer: {
+    command: 'cd example-app && npm run dev',
+    url: 'http://localhost:3000',
+    timeout: 120 * 1000,
+    reuseExistingServer: !isCI,
+    stdout: 'pipe',
+    stderr: 'pipe',
+  },
 
   /**
    * Output Folder

@@ -52,10 +52,11 @@ export interface TestUser {
 /**
  * Standard User
  * Used for most test scenarios
+ * These credentials match the seeded database users in the example-app
  */
 export const standardUser: TestUser = {
-  email: process.env.TEST_USER_EMAIL || 'test.user@example.com',
-  password: process.env.TEST_USER_PASSWORD || 'TestPassword123!',
+  email: process.env.TEST_USER_EMAIL || 'test@example.com',
+  password: process.env.TEST_USER_PASSWORD || 'Test123!@#',
   fullName: 'Test User',
   roles: [UserRole.USER],
   metadata: {
@@ -67,10 +68,11 @@ export const standardUser: TestUser = {
 /**
  * Admin User
  * Used for administrative function testing
+ * These credentials match the seeded database users in the example-app
  */
 export const adminUser: TestUser = {
   email: process.env.ADMIN_USER_EMAIL || 'admin@example.com',
-  password: process.env.ADMIN_USER_PASSWORD || 'AdminPassword123!',
+  password: process.env.ADMIN_USER_PASSWORD || 'Admin123!@#',
   fullName: 'Admin User',
   roles: [UserRole.ADMIN, UserRole.USER],
   metadata: {
