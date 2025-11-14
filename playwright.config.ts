@@ -56,8 +56,9 @@ export default defineConfig({
   // Retry failed tests on CI for resilience
   retries: isCI ? 2 : 0,
 
-  // Limit parallel workers on CI to avoid resource exhaustion
-  workers: isCI ? 2 : 4,
+  // Limit parallel workers to avoid resource exhaustion
+  // Use 1 worker for stability in containerized environments
+  workers: 1,
 
   /**
    * Reporting
@@ -191,7 +192,6 @@ export default defineConfig({
             '--disable-gpu', // Disable GPU hardware acceleration
             '--no-sandbox', // Required for containerized environments
             '--disable-setuid-sandbox',
-            '--single-process', // Run in single process (uses less memory)
           ],
         },
       },

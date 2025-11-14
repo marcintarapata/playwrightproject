@@ -23,20 +23,20 @@ export class LandingPage extends BasePage {
    */
   private readonly selectors = {
     // Hero section
-    heroHeading: '[data-testid="hero-heading"]',
-    heroSubtitle: '[data-testid="hero-subtitle"]',
-    getStartedButton: '[data-testid="cta-button"]',
+    heroHeading: '[data-testid="hero-title"]',
+    heroSubtitle: '[data-testid="hero-description"]',
+    getStartedButton: '[data-testid="cta-primary"]',
 
     // Navigation
-    signInButton: '[data-testid="signin-button"]',
-    logoLink: '[data-testid="logo-link"]',
+    signInButton: '[data-testid="cta-secondary"], [data-testid="nav-login"]',
+    logoLink: '[data-testid="logo"]',
 
     // Features section
     featuresSection: '[data-testid="features-section"]',
-    featureCards: '[data-testid^="feature-"]',
+    featureCards: '[data-testid^="feature-card-"]',
 
     // Footer
-    footer: 'footer',
+    footer: '[data-testid="footer"]',
   };
 
   /**

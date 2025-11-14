@@ -110,10 +110,17 @@ test.describe('Critical Path Smoke Tests', () => {
   test('should not have console errors on homepage', async ({ page }) => {
     const consoleErrors: string[] = [];
 
-    // Listen for console errors
+    // Listen for console errors (filter out React dev warnings)
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
+        const text = msg.text();
+        // Filter out React development warnings and Suspense warnings
+        if (!text.includes('Download the React DevTools') &&
+            !text.includes('React Suspense') &&
+            !text.includes('[Fast Refresh]') &&
+            !text.includes('[HMR]')) {
+          consoleErrors.push(text);
+        }
       }
     });
 
@@ -122,7 +129,7 @@ test.describe('Critical Path Smoke Tests', () => {
     await landingPage.navigate();
     await page.waitForLoadState('networkidle');
 
-    // Assert no console errors
+    // Assert no critical console errors
     expect(consoleErrors).toHaveLength(0);
   });
 
@@ -139,13 +146,18 @@ test.describe('Critical Path Smoke Tests', () => {
     await loginPage.navigate();
     await loginPage.login(email, password);
 
-    // Navigate to todos
+    // Wait for dashboard to fully load
+    await expect(page).toHaveURL('/dashboard');
     const dashboardPage = new DashboardPage(page);
-    await dashboardPage.clickViewTodos();
+    await dashboardPage.waitForDashboardLoaded();
+
+    // Navigate to todos page
+    await dashboardPage.navigateToTodos();
+    await expect(page).toHaveURL('/todos');
 
     // Create todo
     const todosPage = new TodosPage(page);
-    await todosPage.verifyPageLoaded();
+    await todosPage.waitForTodosLoaded();
 
     const initialCount = await todosPage.getTodoCount();
     await todosPage.createTodo('Smoke Test Todo', 'Critical path test', 'high');
@@ -166,28 +178,41 @@ test.describe('Critical Path Smoke Tests', () => {
     await loginPage.navigate();
     await loginPage.login(email, password);
 
-    // Get initial dashboard stats
+    // Wait for dashboard to fully load and get initial stats
+    await expect(page).toHaveURL('/dashboard');
     const dashboardPage = new DashboardPage(page);
     await dashboardPage.waitForDashboardLoaded();
     const initialActive = await dashboardPage.getActiveTodos();
 
+    // Navigate to todos page
+    await dashboardPage.navigateToTodos();
+    await expect(page).toHaveURL('/todos');
+
     // Create new todo
-    await dashboardPage.clickViewTodos();
     const todosPage = new TodosPage(page);
+    await todosPage.waitForTodosLoaded();
     await todosPage.createTodo('Workflow Test');
 
-    // Toggle completion
+    // Wait for todo to be created
+    await page.waitForTimeout(500);
+
+    // Toggle completion on the first todo
     const firstTodo = page.locator('[data-testid^="todo-item-"]').first();
+    await firstTodo.waitFor({ state: 'visible' });
     const todoId = await firstTodo.getAttribute('data-testid');
     const id = parseInt(todoId?.replace('todo-item-', '') || '0');
 
-    await todosPage.toggleTodo(id);
-    await expect(page.locator(`[data-testid="todo-checkbox-${id}"]`)).toBeChecked();
+    if (id > 0) {
+      await todosPage.toggleTodo(id);
+      await expect(page.locator(`[data-testid="todo-checkbox-${id}"]`)).toBeChecked();
+    }
 
-    // Verify on dashboard
+    // Navigate back to dashboard
     await dashboardPage.navigate();
+    await expect(page).toHaveURL('/dashboard');
     await dashboardPage.waitForDashboardLoaded();
 
+    // Verify stats updated correctly
     const finalActive = await dashboardPage.getActiveTodos();
     expect(finalActive).toBe(initialActive); // Should be same since we created and completed one
   });
